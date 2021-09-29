@@ -1,6 +1,9 @@
 package raymond
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 var evalTests = []Test{
 	{
@@ -84,6 +87,68 @@ var evalTests = []Test{
 			"dynamicPartial": `<div>dynamic</div>`,
 		},
 		output: `<div>dynamic</div>`,
+	},
+	{
+		name:     "helper with variadic argument",
+		input:    `{{variadic 1 2 3 4}}`,
+		data:     nil,
+		privData: map[string]interface{}{},
+		helpers: map[string]interface{}{
+			"variadic": func(args ...interface{}) string { return fmt.Sprintf("%v", args[:len(args)-1]) },
+		},
+		partials: map[string]string{},
+		output:   `[1 2 3 4]`,
+	},
+	{
+		name:     "helper with variadic argument (no args)",
+		input:    `{{variadic}}`,
+		data:     nil,
+		privData: map[string]interface{}{},
+		helpers: map[string]interface{}{
+			"variadic": func(args ...interface{}) string { return fmt.Sprintf("%v", args[:len(args)-1]) },
+		},
+		partials: map[string]string{},
+		output:   `[]`,
+	},
+	{
+		name:     "helper with variadic argument can use *raymond.Options",
+		input:    `{{variadic}}`,
+		data:     nil,
+		privData: map[string]interface{}{},
+		helpers: map[string]interface{}{
+			"variadic": func(args ...interface{}) string {
+				_, ok := args[0].(*Options)
+				return fmt.Sprintf("%v", ok)
+			},
+		},
+		partials: map[string]string{},
+		output:   `true`,
+	},
+	{
+		name:     "helper with set and variadic arguments",
+		input:    `{{variadic "1" "2" "3" "4"}}`,
+		data:     nil,
+		privData: map[string]interface{}{},
+		helpers: map[string]interface{}{
+			"variadic": func(arg1, arg2 string, args ...interface{}) string {
+				return fmt.Sprintf("%v %v %v", arg1, arg2, args[:len(args)-1])
+			},
+		},
+		partials: map[string]string{},
+		output:   `1 2 [3 4]`,
+	},
+	{
+		name:     "helper with set and variadic arguments (no variadic args)",
+		input:    `{{variadic "1" "2"}}`,
+		data:     nil,
+		privData: map[string]interface{}{},
+		helpers: map[string]interface{}{
+			"variadic": func(arg1, arg2 string, args ...interface{}) string {
+				return fmt.Sprintf("%v %v %v", arg1, arg2, args[:len(args)-1])
+			},
+		},
+		partials: map[string]string{},
+		output:   `1 2 []`,
 	},
 
 	// @todo Test with a "../../path" (depth 2 path) while context is only depth 1

@@ -591,22 +591,38 @@ func (v *evalVisitor) callFunc(name string, funcVal reflect.Value, options *Opti
 	addOptions := false
 	numIn := funcType.NumIn()
 
-	if numIn == len(params)+1 {
-		lastArgType := funcType.In(numIn - 1)
+	// Basic function type validation
+	if funcType.IsVariadic() {
+		lastArgType := funcType.In(numIn - 1).Elem()
 		if reflect.TypeOf(options).AssignableTo(lastArgType) {
 			addOptions = true
 		}
-	}
-
-	if !addOptions && (len(params) != numIn) {
-		v.errorf("Helper '%s' called with wrong number of arguments, needed %d but got %d", name, numIn, len(params))
+		if !addOptions && (len(params) <= numIn-2) {
+			v.errorf("Helper '%s' called with wrong number of arguments, needed at least %d but got %d", name, numIn-1, len(params))
+		}
+	} else {
+		if numIn == len(params)+1 {
+			lastArgType := funcType.In(numIn - 1)
+			if reflect.TypeOf(options).AssignableTo(lastArgType) {
+				addOptions = true
+			}
+		}
+		if !addOptions && (len(params) != numIn) {
+			v.errorf("Helper '%s' called with wrong number of arguments, needed %d but got %d", name, numIn, len(params))
+		}
 	}
 
 	// check and collect arguments
-	args := make([]reflect.Value, numIn)
+	args := make([]reflect.Value, len(params))
 	for i, param := range params {
 		arg := reflect.ValueOf(param)
-		argType := funcType.In(i)
+
+		var argType reflect.Type
+		if funcType.IsVariadic() && i >= numIn-1 {
+			argType = funcType.In(numIn - 1).Elem()
+		} else {
+			argType = funcType.In(i)
+		}
 
 		if !arg.IsValid() {
 			if canBeNil(argType) {
@@ -636,7 +652,7 @@ func (v *evalVisitor) callFunc(name string, funcVal reflect.Value, options *Opti
 	}
 
 	if addOptions {
-		args[numIn-1] = reflect.ValueOf(options)
+		args = append(args, reflect.ValueOf(options))
 	}
 
 	result := funcVal.Call(args)
