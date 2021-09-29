@@ -160,6 +160,13 @@ var helperTests = []Test{
 		`YES MAN`,
 	},
 	{
+		"#equal helper else case",
+		`{{#equal foo "baz"}}YES MAN{{else}}NO MAN{{/equal}}`,
+		map[string]interface{}{"foo": "bar"},
+		nil, nil, nil,
+		`NO MAN`,
+	},
+	{
 		"#equal helper with different string var",
 		`{{#equal foo "baz"}}YES MAN{{/equal}}`,
 		map[string]interface{}{"foo": "bar"},
