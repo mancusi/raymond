@@ -160,6 +160,13 @@ var helperTests = []Test{
 		`YES MAN`,
 	},
 	{
+		"#equal helper else case",
+		`{{#equal foo "baz"}}YES MAN{{else}}NO MAN{{/equal}}`,
+		map[string]interface{}{"foo": "bar"},
+		nil, nil, nil,
+		`NO MAN`,
+	},
+	{
 		"#equal helper with different string var",
 		`{{#equal foo "baz"}}YES MAN{{/equal}}`,
 		map[string]interface{}{"foo": "bar"},
@@ -245,7 +252,7 @@ func TestRemoveHelper(t *testing.T) {
 }
 
 //
-// Fixes: https://github.com/mancusi/raymond/issues/2
+// Fixes: https://github.com/aymerick/raymond/issues/2
 //
 
 type Author struct {
