@@ -1,6 +1,10 @@
 # Raymond Changelog
 
-### Handlebars 3.0.0 _(September 27, 2021)_
+### Raymond 3.0.1 _(September 27, 2021)_
+- [IMPROVEMENT] Add support for helper functions with variadic parameters. [PR #4](https://github.com/mancusi/raymond/pull/4)
+- [IMPROVEMENT] Support inversing in the `#equal` helper. [PR #5](https://github.com/mancusi/raymond/pull/5)
+
+### Raymond 3.0.0 _(September 27, 2021)_
 - Update to major version number 3
 
 ### Raymond 2.0.2 _(March 22, 2018)_
